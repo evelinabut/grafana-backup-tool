@@ -1,6 +1,6 @@
 import os
 import json
-from grafana_backup.dashboardApi import search_folders, get_folder
+from grafana_backup.dashboardApi import search_folders, get_folder, get_folder_permissions
 from grafana_backup.commons import to_python2_and_3_compatible_string, print_horizontal_line, save_json
 
 
@@ -17,6 +17,7 @@ def main(args, settings):
 
     folder_path = '{0}/folders/{1}'.format(backup_dir, timestamp)
     log_file = 'folders_{0}.txt'.format(timestamp)
+    log_file_p = 'folders_permissions_{0}.txt'.format(timestamp)
 
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -24,6 +25,8 @@ def main(args, settings):
     folders = get_all_folders_in_grafana(grafana_url, http_get_headers, verify_ssl, client_cert, debug)
     print_horizontal_line()
     get_individual_folder_setting_and_save(folders, folder_path, log_file, grafana_url, http_get_headers, verify_ssl, client_cert, debug, pretty_print, uid_support)
+    print_horizontal_line()
+    get_individual_folder_permissions_and_save(folders, folder_path, log_file_p, grafana_url, http_get_headers, verify_ssl, client_cert, debug, pretty_print, uid_support)
     print_horizontal_line()
 
 
@@ -47,6 +50,11 @@ def save_folder_setting(folder_name, file_name, folder_settings, folder_path, pr
     print("folder:{0} are saved to {1}".format(folder_name, file_path))
 
 
+def save_folder_permissions(folder_name, file_name, folder_settings, folder_path, pretty_print):
+    file_path = save_json(file_name, folder_settings, folder_path, 'folder', pretty_print)
+    print("folder permission:{0}  are saved to {1}".format(folder_name, file_path))
+
+
 def get_individual_folder_setting_and_save(folders, folder_path, log_file, grafana_url, http_get_headers, verify_ssl, client_cert, debug, pretty_print, uid_support):
     file_path = folder_path + '/' + log_file
     with open(u"{0}".format(file_path), 'w+') as f:
@@ -67,3 +75,26 @@ def get_individual_folder_setting_and_save(folders, folder_path, log_file, grafa
                     pretty_print
                 )
                 f.write('{0}\t{1}\n'.format(folder_uri, to_python2_and_3_compatible_string(folder['title'])))
+
+
+
+def get_individual_folder_permissions_and_save(folders, folder_path, log_file, grafana_url, http_get_headers, verify_ssl, client_cert, debug, pretty_print, uid_support):
+    file_path = folder_path + '/' + log_file
+    with open(u"{0}".format(file_path), 'w+') as f:
+        for folder in folders:
+            if uid_support:
+                folder_uri = "uid/{0}".format(folder['uid']+"_permission")
+            else:
+                folder_uri = folder['uri']+"_permission"
+
+            (status, content) = get_folder_permissions(folder['uid'], grafana_url, http_get_headers, verify_ssl, client_cert, debug)
+
+            if status == 200:
+                save_folder_permissions(
+                    to_python2_and_3_compatible_string(folder['uid']+"_permission"),
+                    folder_uri,
+                    content,
+                    folder_path,
+                    pretty_print
+                )
+                f.write('{0}\t{1}\n'.format(folder_uri, to_python2_and_3_compatible_string(folder['title']+"_permission")))

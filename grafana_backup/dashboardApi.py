@@ -123,6 +123,12 @@ def get_folder(uid, grafana_url, http_get_headers, verify_ssl, client_cert, debu
     return (status_code, content)
 
 
+def get_folder_permissions(uid, grafana_url, http_get_headers, verify_ssl, client_cert, debug):
+    (status_code, content) = send_grafana_get('{0}/api/folders/{1}/permissions'.format(grafana_url, uid), http_get_headers,
+                                              verify_ssl, client_cert, debug)
+    print("query folder:{0}, status:{1}".format(uid, status_code))
+    return (status_code, content)
+
 def get_folder_id_from_old_folder_url(folder_url, grafana_url, http_post_headers, verify_ssl, client_cert, debug):
     if folder_url != "":
         # Get folder uid
@@ -142,6 +148,9 @@ def create_folder(payload, grafana_url, http_post_headers, verify_ssl, client_ce
     return send_grafana_post('{0}/api/folders'.format(grafana_url), payload, http_post_headers, verify_ssl, client_cert,
                              debug)
 
+def create_folder_permissions(uid, payload, grafana_url, http_post_headers, verify_ssl, client_cert, debug):
+    return send_grafana_post('{0}/api/folders/{1}/permissions'.format(grafana_url, uid), payload, http_post_headers, verify_ssl, client_cert,
+                             debug)
 
 def search_orgs(grafana_url, http_get_headers, verify_ssl, client_cert, debug):
     return send_grafana_get('{0}/api/orgs'.format(grafana_url), http_get_headers, verify_ssl,
@@ -171,6 +180,10 @@ def get_user_org(id, grafana_url, http_get_headers, verify_ssl=False, client_cer
     return send_grafana_get('{0}/api/users/{1}/orgs'.format(grafana_url, id),
                             http_get_headers, verify_ssl, client_cert, debug)
 
+def get_user_id(login, grafana_url, http_get_headers, verify_ssl=False, client_cert=None, debug=True):
+    return send_grafana_get('{0}/api/users/lookup?loginOrEmail={1}'.format(grafana_url, login),
+                           http_get_headers,  verify_ssl, client_cert, debug)
+
 def create_user(payload, grafana_url, http_post_headers, verify_ssl, client_cert, debug):
     return send_grafana_post('{0}/api/admin/users'.format(grafana_url), payload, http_post_headers, verify_ssl, client_cert,
                              debug)
@@ -185,8 +198,7 @@ def send_grafana_get(url, http_get_headers, verify_ssl, client_cert, debug):
     if debug:
         log_response(r)
     return (r.status_code, r.json())
-
-
+ 
 def send_grafana_post(url, json_payload, http_post_headers, verify_ssl=False, client_cert=None, debug=True):
     r = requests.post(url, headers=http_post_headers, data=json_payload, verify=verify_ssl, cert=client_cert)
     if debug:
