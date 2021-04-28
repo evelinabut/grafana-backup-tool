@@ -8,15 +8,21 @@ from grafana_backup.s3_upload import main as s3_upload
 from grafana_backup.save_orgs import main as save_orgs
 from grafana_backup.save_users import main as save_users
 from grafana_backup.azure_storage_upload import main as azure_storage_upload
-import sys
+from git import Repo
+import os,sys
 
 
 def main(args, settings):
     arg_components = args.get('--components', False)
-    arg_no_archive = args.get('--no-archive', False)
+#    arg_no_archive = args.get('--no-archive', False)
+
+    backup_dir = settings.get('BACKUP_DIR')
+    timestamp = settings.get('TIMESTAMP')
+    git_user = settings.get('GIT_USER')
+    git_token = settings.get('GIT_TOKEN')
 
     backup_functions = {'dashboards': save_dashboards,
-                        'datasources': save_datasources,
+                     #   'datasources': save_datasources,
                         'folders': save_folders,
                         'alert-channels': save_alert_channels,
                         'organizations': save_orgs,
@@ -32,6 +38,12 @@ def main(args, settings):
     settings.update({'UID_SUPPORT': uid_support})
     settings.update({'PAGING_SUPPORT': paging_support})
 
+    repo_path = "grafana_backups"
+    if not os.path.exists("grafana_backups/.git"):
+          print('\ncloning https://git.scc.kit.edu/grafana-backup/grafana_backups.git at {0}'.format(repo_path) )
+          repo_url= 'https://{0}:{1}@git.scc.kit.edu/grafana-backup/grafana_backups.git'.format(git_user, git_token)
+          repo = Repo.clone_from(repo_url,repo_path)
+
     if arg_components:
         arg_components_list = arg_components.split(',')
 
@@ -46,9 +58,29 @@ def main(args, settings):
     aws_s3_bucket_name = settings.get('AWS_S3_BUCKET_NAME')
     azure_storage_container_name = settings.get('AZURE_STORAGE_CONTAINER_NAME')
 
-    if not arg_no_archive:
-        archive(args, settings)
-   
+#    if not arg_no_archive:
+#        archive(args, settings)
+ 
+    # Commit the backup folder to git repository   
+    repo = Repo(repo_path)
+    remote = repo.remote()
+
+    #set entire backup directory
+    cwd = os.getcwd()
+    backup_path = '{0}/{1}/{2}'.format(cwd,backup_dir,timestamp)
+
+    #add backup directory and commit
+    repo.index.add([backup_path])
+    output= repo.index.commit( "Commit Grafana backup")
+
+    try:
+        print('Upload backup to git repository https://git.scc.kit.edu/grafana-backup/grafana_backups.git: DONE')
+        #push changes
+        output = remote.push()
+    except GitCommandError as e:
+        print('Error: Could not push to origin master: {0}'.format(e))
+
+  
     if aws_s3_bucket_name:
         print('Upload archives to S3:')
         s3_upload(args, settings)

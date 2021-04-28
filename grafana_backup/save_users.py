@@ -16,7 +16,7 @@ def main(args, settings):
     pretty_print = settings.get('PRETTY_PRINT')
 
     if http_get_headers_basic_auth:
-        folder_path = '{0}/users/{1}'.format(backup_dir, timestamp)
+        folder_path = '{0}/{1}/users'.format(backup_dir, timestamp)
         log_file = 'users_{0}.txt'.format(timestamp)
 
         if not os.path.exists(folder_path):

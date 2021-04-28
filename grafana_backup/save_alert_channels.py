@@ -14,7 +14,7 @@ def main(args, settings):
     debug = settings.get('DEBUG')
     pretty_print = settings.get('PRETTY_PRINT')
 
-    folder_path = '{0}/alert_channels/{1}'.format(backup_dir, timestamp)
+    folder_path = '{0}/{1}/alert_channels/'.format(backup_dir, timestamp)
     log_file = 'alert_channels_{0}.txt'.format(timestamp)
 
     if not os.path.exists(folder_path):

@@ -15,7 +15,7 @@ def main(args, settings):
     pretty_print = settings.get('PRETTY_PRINT')
     uid_support = settings.get('UID_SUPPORT')
 
-    folder_path = '{0}/folders/{1}'.format(backup_dir, timestamp)
+    folder_path = '{0}/{1}/folders'.format(backup_dir, timestamp)
     log_file = 'folders_{0}.txt'.format(timestamp)
     log_file_p = 'folders_permissions_{0}.txt'.format(timestamp)
 

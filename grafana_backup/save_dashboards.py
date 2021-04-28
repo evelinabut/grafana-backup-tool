@@ -17,7 +17,7 @@ def main(args, settings):
     uid_support = settings.get('UID_SUPPORT')
     paging_support = settings.get('PAGING_SUPPORT')
 
-    folder_path = '{0}/dashboards/{1}'.format(backup_dir, timestamp)
+    folder_path = '{0}/{1}/dashboards'.format(backup_dir, timestamp)
     log_file = 'dashboards_{0}.txt'.format(timestamp)
 
     if not os.path.exists(folder_path):

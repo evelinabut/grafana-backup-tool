@@ -6,7 +6,6 @@ from datetime import datetime
 from grafana_backup.commons import (load_config,
                                     to_python2_and_3_compatible_string)
 
-
 def main(config_path):
     # Load config from optional configuration file located at ~/.grafana-backup.json
     # or load defaults from example config stored in grafanaSettings.json
@@ -23,7 +22,8 @@ def main(config_path):
     debug = config.get('general', {}).get('debug', True)
     verify_ssl = config.get('general', {}).get('verify_ssl', False)
     client_cert = config.get('general', {}).get('client_cert', None)
-    backup_dir = config.get('general', {}).get('backup_dir', '_OUTPUT_')
+#    backup_dir = config.get('general', {}).get('backup_dir', '_OUTPUT_')
+    backup_dir = config.get('general', {}).get('backup_dir', 'grafana_backups')
     backup_file_format = config.get('general', {}).get('backup_file_format', '%Y%m%d%H%M')
     pretty_print = config.get('general', {}).get('pretty_print', False)
     aws_s3_bucket_name = config.get('aws', {}).get('s3_bucket_name', '')
@@ -41,6 +41,9 @@ def main(config_path):
     GRAFANA_URL = os.getenv('GRAFANA_URL', grafana_url)
     TOKEN = os.getenv('GRAFANA_TOKEN', grafana_token)
     SEARCH_API_LIMIT = os.getenv('SEARCH_API_LIMIT', grafana_search_api_limit)
+
+    GIT_USER = os.getenv('GIT_USER')
+    GIT_TOKEN = os.getenv('GIT_TOKEN')
 
     AWS_S3_BUCKET_NAME = os.getenv('AWS_S3_BUCKET_NAME', aws_s3_bucket_name)
     AWS_S3_BUCKET_KEY = os.getenv('AWS_S3_BUCKET_KEY', aws_s3_bucket_key)
@@ -127,5 +130,7 @@ def main(config_path):
     config_dict['AWS_ENDPOINT_URL'] = AWS_ENDPOINT_URL
     config_dict['AZURE_STORAGE_CONTAINER_NAME'] = AZURE_STORAGE_CONTAINER_NAME
     config_dict['AZURE_STORAGE_CONNECTION_STRING'] = AZURE_STORAGE_CONNECTION_STRING
+    config_dict['GIT_USER'] = GIT_USER
+    config_dict['GIT_TOKEN'] = GIT_TOKEN
 
     return config_dict
