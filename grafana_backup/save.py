@@ -3,6 +3,7 @@ from grafana_backup.save_dashboards import main as save_dashboards
 from grafana_backup.save_datasources import main as save_datasources
 from grafana_backup.save_folders import main as save_folders
 from grafana_backup.save_alert_channels import main as save_alert_channels
+from grafana_backup.save_annotations import main as save_annotations
 from grafana_backup.archive import main as archive
 from grafana_backup.s3_upload import main as s3_upload
 from grafana_backup.save_orgs import main as save_orgs
@@ -20,11 +21,13 @@ def main(args, settings):
     timestamp = settings.get('TIMESTAMP')
     git_user = settings.get('GIT_USER')
     git_token = settings.get('GIT_TOKEN')
-
+    grafana_url = settings.get('GRAFANA_URL')
+ 
     backup_functions = {'dashboards': save_dashboards,
                      #   'datasources': save_datasources,
-                        'folders': save_folders,
+                         'folders': save_folders,
                         'alert-channels': save_alert_channels,
+                        'annotations': save_annotations,
                         'organizations': save_orgs,
                         'users': save_users}
 
@@ -44,16 +47,29 @@ def main(args, settings):
           repo_url= 'https://{0}:{1}@git.scc.kit.edu/grafana-backup/grafana_backups.git'.format(git_user, git_token)
           repo = Repo.clone_from(repo_url,repo_path)
 
+
+    folder_path = '{0}/{1}'.format(backup_dir, timestamp)
+    log_file = 'info_backup_{0}.txt'.format(timestamp)
+    file_path = folder_path + '/' + log_file
+
     if arg_components:
         arg_components_list = arg_components.split(',')
 
         # Backup only the components that provided via an argument
         for backup_function in arg_components_list:
             backup_functions[backup_function](args, settings)
+
+        with open(u"{0}".format(file_path), 'w+') as f:
+             f.write('Backup from {0}\n'.format(grafana_url) )
+             f.write('Backup done only for component provided via argument: {0}\n'.format(arg_components) )
     else:
         # Backup every component
         for backup_function in backup_functions.keys():
             backup_functions[backup_function](args, settings)
+
+        with open(u"{0}".format(file_path), 'w+') as f:
+            f.write('Backup from {0}\n'.format(grafana_url) )
+            f.write('Backup done for every component \n')
 
     aws_s3_bucket_name = settings.get('AWS_S3_BUCKET_NAME')
     azure_storage_container_name = settings.get('AZURE_STORAGE_CONTAINER_NAME')
@@ -61,7 +77,7 @@ def main(args, settings):
 #    if not arg_no_archive:
 #        archive(args, settings)
  
-    # Commit the backup folder to git repository   
+  ###### Commit the backup folder to git repository #######
     repo = Repo(repo_path)
     remote = repo.remote()
 
@@ -73,12 +89,18 @@ def main(args, settings):
     repo.index.add([backup_path])
     output= repo.index.commit( "Commit Grafana backup")
 
-    try:
-        print('Upload backup to git repository https://git.scc.kit.edu/grafana-backup/grafana_backups.git: DONE')
+    try:        
         #push changes
         output = remote.push()
+        print('Upload backup to git repository https://git.scc.kit.edu/grafana-backup/grafana_backups.git: DONE')
     except GitCommandError as e:
         print('Error: Could not push to origin master: {0}'.format(e))
+        #remove backup folder since backup fails
+        try:
+           shutil.rmtree(backup_path)
+        except OSError as e:
+            print("Error: %s : %s" % (backup_path, e.strerror))
+
 
   
     if aws_s3_bucket_name:

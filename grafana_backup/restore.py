@@ -5,6 +5,7 @@ from grafana_backup.create_datasource import main as create_datasource
 from grafana_backup.create_dashboard import main as create_dashboard
 from grafana_backup.create_alert_channel import main as create_alert_channel
 from grafana_backup.create_user import main as create_user
+from grafana_backup.create_annotation import main as create_annotation
 from grafana_backup.s3_download import main as s3_download
 from grafana_backup.azure_storage_download import main as azure_storage_download
 from glob import glob
@@ -59,6 +60,7 @@ def main(args, settings):
     restore_functions['alert_channel'] = create_alert_channel
     restore_functions['organization']  = create_org
     restore_functions['user']          = create_user
+    restore_functions['annotation']    = create_annotation
        
     restore_components(args, settings, restore_functions, arg_backup_path)
 

@@ -71,6 +71,16 @@ def search_dashboard(page, limit, grafana_url, http_get_headers, verify_ssl, cli
     print("search dashboard in grafana: {0}".format(url))
     return send_grafana_get(url, http_get_headers, verify_ssl, client_cert, debug)
 
+def search_dashboard_by_id(dashboard_id, grafana_url, http_get_headers, verify_ssl, client_cert, debug):
+    url = '{0}/api/search?dashboardIds={1}'.format(grafana_url, dashboard_id)
+    print("search dashboard with id {0} in grafana: {1}".format(dashboard_id, url))
+    return send_grafana_get(url, http_get_headers, verify_ssl, client_cert, debug)
+
+def get_dashboard_by_uid(dashboard_uid, grafana_url, http_get_headers, verify_ssl, client_cert, debug):
+    url = '{0}/api/dashboards/uid/{1}'.format(grafana_url, dashboard_uid)
+    print("get dashboard by uid {0} in grafana: {1}".format(dashboard_uid, url))
+    return send_grafana_get(url, http_get_headers, verify_ssl, client_cert, debug)
+
 
 def get_dashboard(board_uri, grafana_url, http_get_headers, verify_ssl, client_cert, debug):
     url = '{0}/api/dashboards/{1}'.format(grafana_url, board_uri)
@@ -109,6 +119,14 @@ def create_datasource(payload, grafana_url, http_post_headers, verify_ssl, clien
     return send_grafana_post('{0}/api/datasources'.format(grafana_url), payload, http_post_headers, verify_ssl,
                              client_cert, debug)
 
+def get_all_annotations(grafana_url, http_get_headers, verify_ssl, client_cert, debug):
+    print("search annotations in grafana:")
+    return send_grafana_get('{0}/api/annotations'.format(grafana_url), http_get_headers, verify_ssl,
+                            client_cert, debug)
+
+def create_annotation(payload, grafana_url, http_post_headers, verify_ssl, client_cert, debug):
+    return send_grafana_post('{0}/api/annotations'.format(grafana_url), payload, http_post_headers, verify_ssl,
+                             client_cert, debug)
 
 def search_folders(grafana_url, http_get_headers, verify_ssl, client_cert, debug):
     print("search folder in grafana:")
