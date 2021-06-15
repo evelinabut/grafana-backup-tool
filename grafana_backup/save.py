@@ -10,7 +10,7 @@ from grafana_backup.save_orgs import main as save_orgs
 from grafana_backup.save_users import main as save_users
 from grafana_backup.azure_storage_upload import main as azure_storage_upload
 from git import Repo
-import os,sys
+import os,sys,shutil
 
 
 def main(args, settings):
@@ -93,6 +93,8 @@ def main(args, settings):
         #push changes
         output = remote.push()
         print('Upload backup to git repository https://git.scc.kit.edu/grafana-backup/grafana_backups.git: DONE')
+        #remove backup folder from local disk
+        shutil.rmtree(backup_path)
     except GitCommandError as e:
         print('Error: Could not push to origin master: {0}'.format(e))
         #remove backup folder since backup fails
