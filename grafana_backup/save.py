@@ -43,8 +43,8 @@ def main(args, settings):
 
     repo_path = "grafana_backups"
     if not os.path.exists("grafana_backups/.git"):
-          print('\ncloning https://git.scc.kit.edu/grafana-backup/grafana_backups.git at {0}'.format(repo_path) )
-          repo_url= 'https://{0}:{1}@git.scc.kit.edu/grafana-backup/grafana_backups.git'.format(git_user, git_token)
+          print('\ncloning https://gitlab.kit.edu/kit/scc/sdm/grafana_backups.git at {0}'.format(repo_path) )
+          repo_url= 'https://{0}:{1}@gitlab.kit.edu/kit/scc/sdm/grafana_backups.git'.format(git_user, git_token)
           repo = Repo.clone_from(repo_url,repo_path)
 
 
@@ -92,7 +92,7 @@ def main(args, settings):
     try:        
         #push changes
         output = remote.push()
-        print('Upload backup to git repository https://git.scc.kit.edu/grafana-backup/grafana_backups.git: DONE')
+        print('Upload backup to git repository https://gitlab.kit.edu/kit/scc/sdm/grafana_backups.git: DONE')
         #remove backup folder from local disk
         shutil.rmtree(backup_path)
     except GitCommandError as e:
