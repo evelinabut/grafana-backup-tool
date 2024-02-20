@@ -21,8 +21,9 @@ def main(args, settings, file_path):
    
     permissions={}
     items=[]
-    if set_perm:       
-       for i in range(len(folder)):                                            
+    if set_perm:
+      if folder:
+        for i in range(len(folder)):                                            
             for key in folder[i]:               
                 if key=="role" :
                     items.append( { key: folder[i][key], "permission": folder[i]["permission"]  })
@@ -33,8 +34,8 @@ def main(args, settings, file_path):
                 if key=="teamId" and folder[i]["teamId"]!=0:
                    items.append( { key: folder[i][key], "permission": folder[i]["permission"]  })
                
-       permissions ={ "items" : items }                
-       result = create_folder_permissions( folder[0]['uid'], json.dumps(permissions), grafana_url, http_post_headers, verify_ssl, client_cert, debug)
+        permissions ={ "items" : items }                
+        result = create_folder_permissions( folder[0]['uid'], json.dumps(permissions), grafana_url, http_post_headers, verify_ssl, client_cert, debug)
        print("create permission  folder {0}, status: {1}, msg: {2}".format(folder[i].get('title', ''), result[0], result[1]))
     else:    
        result = create_folder(json.dumps(folder), grafana_url, http_post_headers, verify_ssl, client_cert, debug)
