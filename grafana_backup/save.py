@@ -66,7 +66,7 @@ def main(args, settings):
         # Backup every component
         for backup_function in backup_functions.keys():
             backup_functions[backup_function](args, settings)
-
+        
         with open(u"{0}".format(file_path), 'w+') as f:
             f.write('Backup from {0}\n'.format(grafana_url) )
             f.write('Backup done for every component \n')
@@ -94,7 +94,7 @@ def main(args, settings):
         output = remote.push()
         print('Upload backup to git repository https://gitlab.kit.edu/kit/scc/sdm/grafana_backups.git: DONE')
         #remove backup folder from local disk
-        shutil.rmtree(backup_path)
+       # shutil.rmtree(backup_path)
     except GitCommandError as e:
         print('Error: Could not push to origin master: {0}'.format(e))
         #remove backup folder since backup fails
