@@ -36,7 +36,7 @@ def main(args, settings, file_path):
                
         permissions ={ "items" : items }                
         result = create_folder_permissions( folder[0]['uid'], json.dumps(permissions), grafana_url, http_post_headers, verify_ssl, client_cert, debug)
-       print("create permission  folder {0}, status: {1}, msg: {2}".format(folder[i].get('title', ''), result[0], result[1]))
+        print("create permission  folder {0}, status: {1}, msg: {2}".format(folder[i].get('title', ''), result[0], result[1]))
     else:    
        result = create_folder(json.dumps(folder), grafana_url, http_post_headers, verify_ssl, client_cert, debug)
        print("create folder {0}, status: {1}, msg: {2}".format(folder.get('title', ''), result[0], result[1]))
